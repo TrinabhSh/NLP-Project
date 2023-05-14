@@ -1,0 +1,3247 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d305130a",
+   "metadata": {},
+   "source": [
+    "# Inserting all the Important Libraries "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "185b01a1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "from nltk.stem import WordNetLemmatizer\n",
+    "lemmatizer = WordNetLemmatizer()\n",
+    "from nltk.corpus import stopwords\n",
+    "from nltk.tokenize import word_tokenize\n",
+    "from nltk.corpus import opinion_lexicon\n",
+    "stop_words = stopwords.words(\"english\")\n",
+    "from nltk.stem.snowball import SnowballStemmer\n",
+    "sn_stemmer = SnowballStemmer(\"english\")\n",
+    "import nltk\n",
+    "from sklearn.feature_extraction.text import CountVectorizer\n",
+    "from sklearn.cluster import KMeans\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "from sklearn.linear_model import LogisticRegression\n",
+    "from sklearn.metrics import accuracy_score\n",
+    "from sklearn.metrics import confusion_matrix\n",
+    "import seaborn as sns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "0a628bfc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_reviews_dataset = pd.read_csv('Reviews_Dataset.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "44809b09",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great CD</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>One of the best game music soundtracks - for a...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Batteries died within a year ...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>works fine, but Maha Energy is better</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great for the non-audiophile</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9995</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Really Enjoyed it!</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9996</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Disappointing PC interface/software</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9997</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Love it Love it Love it</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9998</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Faulty leg causing distress for my baby</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9999</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Fantastic Entertainer</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>10000 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Rating                                            Reviews\n",
+       "0          2                                           Great CD\n",
+       "1          2  One of the best game music soundtracks - for a...\n",
+       "2          1                   Batteries died within a year ...\n",
+       "3          2              works fine, but Maha Energy is better\n",
+       "4          2                       Great for the non-audiophile\n",
+       "...      ...                                                ...\n",
+       "9995       2                                 Really Enjoyed it!\n",
+       "9996       1                Disappointing PC interface/software\n",
+       "9997       2                            Love it Love it Love it\n",
+       "9998       1            Faulty leg causing distress for my baby\n",
+       "9999       2                              Fantastic Entertainer\n",
+       "\n",
+       "[10000 rows x 2 columns]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6399eda4",
+   "metadata": {},
+   "source": [
+    "# Cleaning the Text "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "2b858246",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def function(x):\n",
+    "    x = str(x)\n",
+    "    x = x.lower()\n",
+    "    y=nltk.word_tokenize(x)\n",
+    "    temp=[]\n",
+    "    for i in y:\n",
+    "        if i in stopwords.words(\"english\"): \n",
+    "             pass\n",
+    "        else:\n",
+    "             temp.append(i)\n",
+    "    stop=' '.join(temp)\n",
+    "    \n",
+    "    c=nltk.word_tokenize(stop)\n",
+    "    temp2=[]\n",
+    "    for i in c:\n",
+    "        temp2.append((sn_stemmer.stem(i)))\n",
+    "    lem=' '.join(temp2)\n",
+    "\n",
+    "    temp4 = []\n",
+    "    for i in lem:\n",
+    "        if i.isdigit():\n",
+    "            pass\n",
+    "        else:\n",
+    "            temp4.append(i)\n",
+    "    num =''.join(temp4)\n",
+    "    return num"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "51079f27",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'lm gift , cr hardwork'"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "function('LM10 is gifted, CR7 is hardwork')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "ab3d1b35",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [],
+   "source": [
+    "my_reviews_dataset['Cleansed_Message'] = my_reviews_dataset['Reviews'].apply(function)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "36595535",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Cleansed_Message</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great CD</td>\n",
+       "      <td>great cd</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>One of the best game music soundtracks - for a...</td>\n",
+       "      <td>one best game music soundtrack - game n't real...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Batteries died within a year ...</td>\n",
+       "      <td>batteri die within year ...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>works fine, but Maha Energy is better</td>\n",
+       "      <td>work fine , maha energi better</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great for the non-audiophile</td>\n",
+       "      <td>great non-audiophil</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9995</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Really Enjoyed it!</td>\n",
+       "      <td>realli enjoy !</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9996</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Disappointing PC interface/software</td>\n",
+       "      <td>disappoint pc interface/softwar</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9997</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Love it Love it Love it</td>\n",
+       "      <td>love love love</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9998</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Faulty leg causing distress for my baby</td>\n",
+       "      <td>faulti leg caus distress babi</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9999</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Fantastic Entertainer</td>\n",
+       "      <td>fantast entertain</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>10000 rows × 3 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Rating                                            Reviews  \\\n",
+       "0          2                                           Great CD   \n",
+       "1          2  One of the best game music soundtracks - for a...   \n",
+       "2          1                   Batteries died within a year ...   \n",
+       "3          2              works fine, but Maha Energy is better   \n",
+       "4          2                       Great for the non-audiophile   \n",
+       "...      ...                                                ...   \n",
+       "9995       2                                 Really Enjoyed it!   \n",
+       "9996       1                Disappointing PC interface/software   \n",
+       "9997       2                            Love it Love it Love it   \n",
+       "9998       1            Faulty leg causing distress for my baby   \n",
+       "9999       2                              Fantastic Entertainer   \n",
+       "\n",
+       "                                       Cleansed_Message  \n",
+       "0                                              great cd  \n",
+       "1     one best game music soundtrack - game n't real...  \n",
+       "2                           batteri die within year ...  \n",
+       "3                        work fine , maha energi better  \n",
+       "4                                   great non-audiophil  \n",
+       "...                                                 ...  \n",
+       "9995                                     realli enjoy !  \n",
+       "9996                    disappoint pc interface/softwar  \n",
+       "9997                                     love love love  \n",
+       "9998                      faulti leg caus distress babi  \n",
+       "9999                                  fantast entertain  \n",
+       "\n",
+       "[10000 rows x 3 columns]"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "056a5d72",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pos_words = set(opinion_lexicon.positive())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "93980a91",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "neg_words = set(opinion_lexicon.negative())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "37f06cbb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'deserving',\n",
+       " 'galore',\n",
+       " 'defeats',\n",
+       " 'dextrous',\n",
+       " 'grandeur',\n",
+       " 'fruitful',\n",
+       " 'glowing',\n",
+       " 'gloriously',\n",
+       " 'innovation',\n",
+       " 'eminence',\n",
+       " 'avid',\n",
+       " 'groundbreaking',\n",
+       " 'playfully',\n",
+       " 'reconcile',\n",
+       " 'restructured',\n",
+       " 'noble',\n",
+       " 'influential',\n",
+       " 'crisp',\n",
+       " 'bountiful',\n",
+       " 'trustingly',\n",
+       " 'realizable',\n",
+       " 'supports',\n",
+       " 'trump',\n",
+       " 'dumbfounding',\n",
+       " 'lyrical',\n",
+       " 'extoll',\n",
+       " 'outstandingly',\n",
+       " 'superior',\n",
+       " 'notably',\n",
+       " 'promise',\n",
+       " 'ilu',\n",
+       " 'spellbinding',\n",
+       " 'brilliantly',\n",
+       " 'significant',\n",
+       " 'slick',\n",
+       " 'fairly',\n",
+       " 'traction',\n",
+       " 'wonderous',\n",
+       " 'endorsing',\n",
+       " 'problem-solver',\n",
+       " 'solicitously',\n",
+       " 'inpressed',\n",
+       " 'self-sufficiency',\n",
+       " 'jaw-dropping',\n",
+       " 'faithful',\n",
+       " 'attractively',\n",
+       " 'affectation',\n",
+       " 'empathize',\n",
+       " 'ambitiously',\n",
+       " 'rectification',\n",
+       " 'astonishing',\n",
+       " 'fondly',\n",
+       " 'propitious',\n",
+       " 'fine',\n",
+       " 'tender',\n",
+       " 'expansive',\n",
+       " 'envy',\n",
+       " 'lifesaver',\n",
+       " 'integral',\n",
+       " 'vouch',\n",
+       " 'plush',\n",
+       " 'brighter',\n",
+       " 'poeticize',\n",
+       " 'durable',\n",
+       " 'protective',\n",
+       " 'proper',\n",
+       " 'benefit',\n",
+       " 'originality',\n",
+       " 'ultra-crisp',\n",
+       " 'wholesome',\n",
+       " 'win',\n",
+       " 'productive',\n",
+       " 'refreshed',\n",
+       " 'promised',\n",
+       " 'suavely',\n",
+       " 'scenic',\n",
+       " 'expertly',\n",
+       " 'gratified',\n",
+       " 'cashbacks',\n",
+       " 'willingly',\n",
+       " 'expeditiously',\n",
+       " 'bonuses',\n",
+       " 'prefers',\n",
+       " 'beauty',\n",
+       " 'lucidly',\n",
+       " 'adaptive',\n",
+       " 'entertains',\n",
+       " 'evenly',\n",
+       " 'fine-looking',\n",
+       " 'admirer',\n",
+       " 'jubilant',\n",
+       " 'examplary',\n",
+       " 'accolades',\n",
+       " 'affability',\n",
+       " 'gratifies',\n",
+       " 'revival',\n",
+       " 'passion',\n",
+       " 'cooperatively',\n",
+       " 'amity',\n",
+       " 'sufficiently',\n",
+       " 'exuberant',\n",
+       " 'effusion',\n",
+       " 'trendy',\n",
+       " 'cohere',\n",
+       " 'handsome',\n",
+       " 'zippy',\n",
+       " 'amicability',\n",
+       " 'luxuriously',\n",
+       " 'gentlest',\n",
+       " 'compassion',\n",
+       " 'fortunate',\n",
+       " 'elate',\n",
+       " 'valiant',\n",
+       " 'pinnacle',\n",
+       " 'standout',\n",
+       " 'envious',\n",
+       " 'meticulously',\n",
+       " 'prosper',\n",
+       " 'exultation',\n",
+       " 'sensibly',\n",
+       " 'openness',\n",
+       " 'sturdy',\n",
+       " 'halcyon',\n",
+       " 'upheld',\n",
+       " 'astonishingly',\n",
+       " 'prodigiously',\n",
+       " 'renaissance',\n",
+       " 'jubilation',\n",
+       " 'accomplishment',\n",
+       " 'accurate',\n",
+       " 'effusive',\n",
+       " 'sagely',\n",
+       " 'encourage',\n",
+       " 'fantastically',\n",
+       " 'refined',\n",
+       " 'terrifically',\n",
+       " 'glad',\n",
+       " 'pamperedly',\n",
+       " 'toughest',\n",
+       " 'effusiveness',\n",
+       " 'hottest',\n",
+       " 'bloom',\n",
+       " 'earnest',\n",
+       " 'hallowed',\n",
+       " 'enviously',\n",
+       " 'fave',\n",
+       " 'sumptuousness',\n",
+       " 'winning',\n",
+       " 'thriving',\n",
+       " 'promising',\n",
+       " 'recommendation',\n",
+       " 'coolest',\n",
+       " 'peacekeepers',\n",
+       " 'renewed',\n",
+       " 'gumption',\n",
+       " 'miraculousness',\n",
+       " 'playful',\n",
+       " 'exquisitely',\n",
+       " 'complementary',\n",
+       " 'witty',\n",
+       " 'stylish',\n",
+       " 'resilient',\n",
+       " 'delectable',\n",
+       " 'deginified',\n",
+       " 'amusing',\n",
+       " 'upgraded',\n",
+       " 'eminent',\n",
+       " 'jolly',\n",
+       " 'appreciable',\n",
+       " 'comfortably',\n",
+       " 'benefits',\n",
+       " 'well-known',\n",
+       " 'shimmering',\n",
+       " 'clear',\n",
+       " 'compact',\n",
+       " 'reaffirm',\n",
+       " 'workable',\n",
+       " 'fortitude',\n",
+       " 'easier',\n",
+       " 'mightily',\n",
+       " 'favorable',\n",
+       " 'softer',\n",
+       " 'fancier',\n",
+       " 'marvelously',\n",
+       " 'beneficially',\n",
+       " 'clear-cut',\n",
+       " 'benifits',\n",
+       " 'well-educated',\n",
+       " 'lucrative',\n",
+       " 'glitz',\n",
+       " 'effortless',\n",
+       " 'intimate',\n",
+       " 'effortlessly',\n",
+       " 'carefree',\n",
+       " 'pleasing',\n",
+       " 'savior',\n",
+       " 'easing',\n",
+       " 'ecstasies',\n",
+       " 'unabashedly',\n",
+       " 'elan',\n",
+       " 'civility',\n",
+       " 'rewardingly',\n",
+       " 'tenacity',\n",
+       " 'eagerly',\n",
+       " 'excelent',\n",
+       " 'precious',\n",
+       " 'salute',\n",
+       " 'modern',\n",
+       " 'individualized',\n",
+       " 'clearly',\n",
+       " 'entrust',\n",
+       " 'inviolate',\n",
+       " 'adored',\n",
+       " 'purify',\n",
+       " 'refund',\n",
+       " 'exonerate',\n",
+       " 'high-spirited',\n",
+       " 'admirably',\n",
+       " 'irresistibly',\n",
+       " 'luxuriate',\n",
+       " 'tranquil',\n",
+       " 'effectiveness',\n",
+       " 'youthful',\n",
+       " 'unparalleled',\n",
+       " 'foresight',\n",
+       " 'compliment',\n",
+       " 'fanfare',\n",
+       " 'finely',\n",
+       " 'profusion',\n",
+       " 'boom',\n",
+       " 'bolster',\n",
+       " 'cheaper',\n",
+       " 'heartening',\n",
+       " 'low-price',\n",
+       " 'exceptionally',\n",
+       " 'innovative',\n",
+       " 'heartfelt',\n",
+       " 'priceless',\n",
+       " 'contentment',\n",
+       " 'correct',\n",
+       " 'effusively',\n",
+       " 'incredibly',\n",
+       " 'all-around',\n",
+       " 'satisfactorily',\n",
+       " 'felicity',\n",
+       " 'gracious',\n",
+       " 'blithe',\n",
+       " 'masterfully',\n",
+       " 'evocative',\n",
+       " 'undaunted',\n",
+       " 'illumine',\n",
+       " 'succeeding',\n",
+       " 'famed',\n",
+       " 'masters',\n",
+       " 'brave',\n",
+       " 'rapturously',\n",
+       " 'mind-blowing',\n",
+       " 'gentle',\n",
+       " 'hilarious',\n",
+       " 'rapturous',\n",
+       " 'euphorically',\n",
+       " 'succes',\n",
+       " 'prestige',\n",
+       " 'honor',\n",
+       " 'gallant',\n",
+       " 'advocate',\n",
+       " 'geekier',\n",
+       " 'low-priced',\n",
+       " 'pure',\n",
+       " 'amazed',\n",
+       " 'lush',\n",
+       " 'accessible',\n",
+       " 'cherished',\n",
+       " 'inestimable',\n",
+       " 'revolutionizes',\n",
+       " 'trustworthy',\n",
+       " 'preferably',\n",
+       " 'accurately',\n",
+       " 'cleanest',\n",
+       " 'commendable',\n",
+       " 'miraculously',\n",
+       " 'magic',\n",
+       " 'obsessions',\n",
+       " 'fastest-growing',\n",
+       " 'hands-down',\n",
+       " 'aspiration',\n",
+       " 'enjoyable',\n",
+       " 'chivalry',\n",
+       " 'excitedly',\n",
+       " 'exaltedly',\n",
+       " 'virtue',\n",
+       " 'kindness',\n",
+       " 'peerless',\n",
+       " 'unconditional',\n",
+       " 'realistic',\n",
+       " 'well-received',\n",
+       " 'picturesque',\n",
+       " 'visionary',\n",
+       " 'achievements',\n",
+       " 'revolutionary',\n",
+       " 'amuse',\n",
+       " 'successes',\n",
+       " 'resolute',\n",
+       " 'jubilantly',\n",
+       " 'confidence',\n",
+       " 'aver',\n",
+       " 'sweetheart',\n",
+       " 'master',\n",
+       " 'top',\n",
+       " 'blessing',\n",
+       " 'smitten',\n",
+       " 'thankful',\n",
+       " 'thrills',\n",
+       " 'elegantly',\n",
+       " 'resplendent',\n",
+       " 'resounding',\n",
+       " 'victorious',\n",
+       " 'adroitly',\n",
+       " 'selective',\n",
+       " 'affirm',\n",
+       " 'swank',\n",
+       " 'respectable',\n",
+       " 'wise',\n",
+       " 'danken',\n",
+       " 'terrific',\n",
+       " 'compactly',\n",
+       " 'crisper',\n",
+       " 'undisputable',\n",
+       " 'cleaner',\n",
+       " 'luck',\n",
+       " 'endorsement',\n",
+       " 'large-capacity',\n",
+       " 'titillatingly',\n",
+       " 'radiant',\n",
+       " 'applaud',\n",
+       " 'nurturing',\n",
+       " 'advantageous',\n",
+       " 'dead-on',\n",
+       " 'excited',\n",
+       " 'intrigue',\n",
+       " 'sleek',\n",
+       " 'worked',\n",
+       " 'beautify',\n",
+       " 'satisfies',\n",
+       " 'dreamland',\n",
+       " 'glitter',\n",
+       " 'ftw',\n",
+       " 'astonished',\n",
+       " 'precisely',\n",
+       " 'whoooa',\n",
+       " 'enrich',\n",
+       " 'a+',\n",
+       " 'hearten',\n",
+       " 'well-being',\n",
+       " 'beautifullly',\n",
+       " 'assuring',\n",
+       " 'succeeds',\n",
+       " 'smilingly',\n",
+       " 'economical',\n",
+       " 'fabulous',\n",
+       " 'innocuous',\n",
+       " 'freedom',\n",
+       " 'exceptional',\n",
+       " 'hard-working',\n",
+       " 'excites',\n",
+       " 'harmless',\n",
+       " 'resound',\n",
+       " 'secure',\n",
+       " 'simplifying',\n",
+       " 'backbone',\n",
+       " 'ardor',\n",
+       " 'admiring',\n",
+       " 'congenial',\n",
+       " 'superiority',\n",
+       " 'tops',\n",
+       " 'heroize',\n",
+       " 'eased',\n",
+       " 'celebrate',\n",
+       " 'vibrantly',\n",
+       " 'invincible',\n",
+       " 'talented',\n",
+       " 'courageously',\n",
+       " 'miracle',\n",
+       " 'impressiveness',\n",
+       " 'sumptuously',\n",
+       " 'diversified',\n",
+       " 'overture',\n",
+       " 'salutary',\n",
+       " 'positive',\n",
+       " 'sharper',\n",
+       " 'entertaining',\n",
+       " 'memorable',\n",
+       " 'cheer',\n",
+       " 'gleeful',\n",
+       " 'reliable',\n",
+       " 'catchy',\n",
+       " 'blissfully',\n",
+       " 'handier',\n",
+       " 'brainiest',\n",
+       " 'propitiously',\n",
+       " 'eloquence',\n",
+       " 'luckier',\n",
+       " 'elegance',\n",
+       " 'commend',\n",
+       " 'beloved',\n",
+       " 'ample',\n",
+       " 'humour',\n",
+       " 'earnestness',\n",
+       " 'unbound',\n",
+       " 'autonomous',\n",
+       " 'excels',\n",
+       " 'exceeds',\n",
+       " 'unmatched',\n",
+       " 'suitable',\n",
+       " 'upliftingly',\n",
+       " 'sturdier',\n",
+       " 'best-performing',\n",
+       " 'delightfully',\n",
+       " 'likes',\n",
+       " 'attraction',\n",
+       " 'imaginative',\n",
+       " 'kindliness',\n",
+       " 'clever',\n",
+       " 'achievible',\n",
+       " 'welcome',\n",
+       " 'pretty',\n",
+       " 'aspire',\n",
+       " 'ingenuity',\n",
+       " 'satisfactory',\n",
+       " 'tantalizing',\n",
+       " 'simplest',\n",
+       " 'refresh',\n",
+       " 'willing',\n",
+       " 'enjoyably',\n",
+       " 'spectacularly',\n",
+       " 'beckon',\n",
+       " 'enjoyment',\n",
+       " 'smoother',\n",
+       " 'undisputed',\n",
+       " 'inspirational',\n",
+       " 'meritorious',\n",
+       " 'adorer',\n",
+       " 'helpful',\n",
+       " 'pamperedness',\n",
+       " 'gaiety',\n",
+       " 'ideally',\n",
+       " 'responsibly',\n",
+       " 'helping',\n",
+       " 'hooray',\n",
+       " 'prize',\n",
+       " 'legendary',\n",
+       " 'pleasurably',\n",
+       " 'hug',\n",
+       " 'beckoning',\n",
+       " 'exceeded',\n",
+       " 'heroine',\n",
+       " 'whoa',\n",
+       " 'reasoned',\n",
+       " 'fortuitously',\n",
+       " 'trouble-free',\n",
+       " 'enthralled',\n",
+       " 'gain',\n",
+       " 'unlimited',\n",
+       " 'headway',\n",
+       " 'god-given',\n",
+       " 'celebration',\n",
+       " 'thrive',\n",
+       " 'best-selling',\n",
+       " 'thank',\n",
+       " 'idealize',\n",
+       " 'thrift',\n",
+       " 'err-free',\n",
+       " 'stabilize',\n",
+       " 'desirable',\n",
+       " 'outwit',\n",
+       " 'capable',\n",
+       " 'accomplishments',\n",
+       " 'winnable',\n",
+       " 'trusty',\n",
+       " 'gorgeous',\n",
+       " 'lucky',\n",
+       " 'gutsy',\n",
+       " 'exceled',\n",
+       " 'honorable',\n",
+       " 'energetic',\n",
+       " 'simpler',\n",
+       " 'smiling',\n",
+       " 'apotheosis',\n",
+       " 'idol',\n",
+       " 'peps',\n",
+       " 'rejuvenate',\n",
+       " 'spotless',\n",
+       " 'truthful',\n",
+       " 'preferring',\n",
+       " 'refinement',\n",
+       " 'exellent',\n",
+       " 'everlasting',\n",
+       " 'generously',\n",
+       " 'exuberance',\n",
+       " 'affordably',\n",
+       " 'thumb-up',\n",
+       " 'swift',\n",
+       " 'smoothly',\n",
+       " 'adjustable',\n",
+       " 'congratulation',\n",
+       " 'stupendous',\n",
+       " 'admiration',\n",
+       " 'delightfulness',\n",
+       " 'supurbly',\n",
+       " 'enthusiasm',\n",
+       " 'strong',\n",
+       " 'heaven',\n",
+       " 'healthy',\n",
+       " 'generosity',\n",
+       " 'intriguing',\n",
+       " 'tickle',\n",
+       " 'amazing',\n",
+       " 'lionhearted',\n",
+       " 'respect',\n",
+       " 'daring',\n",
+       " 'nicely',\n",
+       " 'revitalize',\n",
+       " 'marvellous',\n",
+       " 'fortuitous',\n",
+       " 'laudable',\n",
+       " 'well-rounded',\n",
+       " 'guiltless',\n",
+       " 'ideal',\n",
+       " 'hardier',\n",
+       " 'miracles',\n",
+       " 'capability',\n",
+       " 'dependably',\n",
+       " 'rock-star',\n",
+       " 'razor-sharp',\n",
+       " 'soulful',\n",
+       " 'futurestic',\n",
+       " 'jubilate',\n",
+       " 'revel',\n",
+       " 'regally',\n",
+       " 'courtly',\n",
+       " 'accessable',\n",
+       " 'aspirations',\n",
+       " 'vigilant',\n",
+       " 'exultant',\n",
+       " 'indebted',\n",
+       " 'noteworthy',\n",
+       " 'intricate',\n",
+       " 'powerfully',\n",
+       " 'deservedly',\n",
+       " 'insightfully',\n",
+       " 'amicably',\n",
+       " 'illustrious',\n",
+       " 'flutter',\n",
+       " 'remarkably',\n",
+       " 'readily',\n",
+       " 'amaze',\n",
+       " 'accomplish',\n",
+       " 'undamaged',\n",
+       " 'insightful',\n",
+       " 'cost-saving',\n",
+       " 'restored',\n",
+       " 'stunned',\n",
+       " 'satisfy',\n",
+       " 'happiness',\n",
+       " 'fresh',\n",
+       " 'eloquently',\n",
+       " 'first-class',\n",
+       " 'qualified',\n",
+       " 'achievable',\n",
+       " 'electrify',\n",
+       " 'exalting',\n",
+       " 'astonish',\n",
+       " 'progressive',\n",
+       " 'flexible',\n",
+       " 'helped',\n",
+       " 'reasonably',\n",
+       " 'idyllic',\n",
+       " 'preferable',\n",
+       " 'restructuring',\n",
+       " 'improvements',\n",
+       " 'elation',\n",
+       " 'treasure',\n",
+       " 'well-managed',\n",
+       " 'honesty',\n",
+       " 'resourcefulness',\n",
+       " 'adore',\n",
+       " 'rectify',\n",
+       " 'verifiable',\n",
+       " 'fast-growing',\n",
+       " 'seasoned',\n",
+       " 'continuity',\n",
+       " 'affirmative',\n",
+       " 'fantastic',\n",
+       " 'fervid',\n",
+       " 'interesting',\n",
+       " 'magnificently',\n",
+       " 'supple',\n",
+       " 'jollify',\n",
+       " 'dazzling',\n",
+       " 'neatest',\n",
+       " 'comfortable',\n",
+       " 'creative',\n",
+       " 'delight',\n",
+       " 'excitement',\n",
+       " 'wonderfully',\n",
+       " 'elevate',\n",
+       " 'fastest',\n",
+       " 'appreciatively',\n",
+       " 'uplifting',\n",
+       " 'convenient',\n",
+       " 'dominates',\n",
+       " 'sumptuous',\n",
+       " 'compatible',\n",
+       " 'readable',\n",
+       " 'permissible',\n",
+       " 'tempting',\n",
+       " 'well-informed',\n",
+       " 'dexterously',\n",
+       " 'convincingly',\n",
+       " 'laud',\n",
+       " 'impeccable',\n",
+       " 'rewarding',\n",
+       " 'acclaimed',\n",
+       " 'privileged',\n",
+       " 'surpass',\n",
+       " 'chic',\n",
+       " 'trumpet',\n",
+       " 'recovery',\n",
+       " 'compassionate',\n",
+       " 'support',\n",
+       " 'goood',\n",
+       " 'fortunately',\n",
+       " 'award',\n",
+       " 'famous',\n",
+       " 'joy',\n",
+       " 'reverently',\n",
+       " 'prolific',\n",
+       " 'pep',\n",
+       " 'reforms',\n",
+       " 'acumen',\n",
+       " 'unreal',\n",
+       " 'dummy-proof',\n",
+       " 'polite',\n",
+       " 'soothe',\n",
+       " 'faithfulness',\n",
+       " 'quicker',\n",
+       " 'clarity',\n",
+       " 'consistently',\n",
+       " 'cure',\n",
+       " 'praising',\n",
+       " 'excelled',\n",
+       " 'glamorous',\n",
+       " 'perfection',\n",
+       " 'assurance',\n",
+       " 'well-made',\n",
+       " 'lower-priced',\n",
+       " 'conscientious',\n",
+       " 'rightfully',\n",
+       " 'good',\n",
+       " 'assuredly',\n",
+       " 'cushy',\n",
+       " 'loving',\n",
+       " 'promises',\n",
+       " 'time-honored',\n",
+       " 'flashy',\n",
+       " 'authoritative',\n",
+       " 'better-than-expected',\n",
+       " 'exaltingly',\n",
+       " 'handily',\n",
+       " 'praiseworthy',\n",
+       " 'warmer',\n",
+       " 'prodigious',\n",
+       " 'improvement',\n",
+       " 'incredible',\n",
+       " 'subsidized',\n",
+       " 'spirited',\n",
+       " 'ecstatically',\n",
+       " 'happier',\n",
+       " 'available',\n",
+       " 'fun',\n",
+       " 'industrious',\n",
+       " 'saver',\n",
+       " 'subsidizes',\n",
+       " 'unforgettable',\n",
+       " 'balanced',\n",
+       " 'gooood',\n",
+       " 'fame',\n",
+       " 'colorful',\n",
+       " 'low-risk',\n",
+       " 'cleanliness',\n",
+       " 'tantalizingly',\n",
+       " 'fancinating',\n",
+       " 'awesomeness',\n",
+       " 'pleases',\n",
+       " 'worthiness',\n",
+       " 'enthral',\n",
+       " 'astounding',\n",
+       " 'complement',\n",
+       " 'energize',\n",
+       " 'unaffected',\n",
+       " 'graciousness',\n",
+       " 'adaptable',\n",
+       " 'promoter',\n",
+       " 'palatial',\n",
+       " 'virtuous',\n",
+       " 'illuminati',\n",
+       " 'felicitate',\n",
+       " 'humane',\n",
+       " 'steadiest',\n",
+       " 'flatter',\n",
+       " 'counter-attacks',\n",
+       " 'prompt',\n",
+       " 'genial',\n",
+       " 'glorify',\n",
+       " 'cure-all',\n",
+       " 'surreal',\n",
+       " 'staunchness',\n",
+       " 'commendably',\n",
+       " 'audibly',\n",
+       " 'glistening',\n",
+       " 'respectful',\n",
+       " 'dead-cheap',\n",
+       " 'politeness',\n",
+       " 'zest',\n",
+       " 'instantly',\n",
+       " 'valiantly',\n",
+       " 'eyecatching',\n",
+       " 'versatility',\n",
+       " 'respectfully',\n",
+       " 'brighten',\n",
+       " 'blissful',\n",
+       " 'thrill',\n",
+       " 'advantage',\n",
+       " 'maneuverable',\n",
+       " 'fascinate',\n",
+       " 'ease',\n",
+       " 'dote',\n",
+       " 'confident',\n",
+       " 'jovial',\n",
+       " 'wieldy',\n",
+       " 'useful',\n",
+       " 'marvel',\n",
+       " 'worthwhile',\n",
+       " 'maturely',\n",
+       " 'well-intentioned',\n",
+       " 'shine',\n",
+       " 'beautifully',\n",
+       " 'easiest',\n",
+       " 'ardently',\n",
+       " 'merciful',\n",
+       " 'astutely',\n",
+       " 'impartially',\n",
+       " 'impresses',\n",
+       " 'irreplaceable',\n",
+       " 'wows',\n",
+       " 'affordable',\n",
+       " 'receptive',\n",
+       " 'greatness',\n",
+       " 'vivid',\n",
+       " 'nicest',\n",
+       " 'frugal',\n",
+       " 'pride',\n",
+       " 'charismatic',\n",
+       " 'gleefully',\n",
+       " 'efficacious',\n",
+       " 'pleasingly',\n",
+       " 'beauteous',\n",
+       " 'wellbeing',\n",
+       " 'wholeheartedly',\n",
+       " 'fragrant',\n",
+       " 'ingeniously',\n",
+       " 'dedicated',\n",
+       " 'spellbindingly',\n",
+       " 'splendid',\n",
+       " 'nourishment',\n",
+       " 'impartial',\n",
+       " 'talent',\n",
+       " 'endorse',\n",
+       " 'sweeten',\n",
+       " 'enviably',\n",
+       " 'affluent',\n",
+       " 'calming',\n",
+       " 'tremendously',\n",
+       " 'magnificence',\n",
+       " 'righteousness',\n",
+       " 'silent',\n",
+       " 'remedy',\n",
+       " 'charm',\n",
+       " 'beautiful',\n",
+       " 'impressively',\n",
+       " 'beneficial',\n",
+       " 'flourishing',\n",
+       " 'deft',\n",
+       " 'survival',\n",
+       " 'supremacy',\n",
+       " 'redeeming',\n",
+       " 'cuteness',\n",
+       " 'super',\n",
+       " 'prospros',\n",
+       " 'brilliant',\n",
+       " 'kid-friendly',\n",
+       " 'reverent',\n",
+       " 'sensational',\n",
+       " 'polished',\n",
+       " 'enjoys',\n",
+       " 'champion',\n",
+       " 'mesmerizes',\n",
+       " 'monumentally',\n",
+       " 'articulate',\n",
+       " 'contrasty',\n",
+       " 'fearless',\n",
+       " 'leads',\n",
+       " 'satisfied',\n",
+       " 'vigilance',\n",
+       " 'prodigy',\n",
+       " 'easygoing',\n",
+       " 'gem',\n",
+       " 'magnificent',\n",
+       " 'evaluative',\n",
+       " 'excellence',\n",
+       " 'fidelity',\n",
+       " 'reaffirmation',\n",
+       " 'toll-free',\n",
+       " 'keen',\n",
+       " 'feat',\n",
+       " 'elated',\n",
+       " 'charming',\n",
+       " 'lavish',\n",
+       " 'wowing',\n",
+       " 'miraculous',\n",
+       " 'joyous',\n",
+       " 'promptly',\n",
+       " 'altruistic',\n",
+       " 'overtaken',\n",
+       " 'well',\n",
+       " 'chivalrous',\n",
+       " 'irreproachable',\n",
+       " 'enjoying',\n",
+       " 'praise',\n",
+       " 'premier',\n",
+       " 'portable',\n",
+       " 'streamlined',\n",
+       " 'eagerness',\n",
+       " 'enough',\n",
+       " 'invigorating',\n",
+       " 'satisfying',\n",
+       " 'astoundingly',\n",
+       " 'pepped',\n",
+       " 'freed',\n",
+       " 'passionately',\n",
+       " 'meticulous',\n",
+       " 'sweetly',\n",
+       " 'lead',\n",
+       " 'admiringly',\n",
+       " 'optimism',\n",
+       " 'friendly',\n",
+       " 'restful',\n",
+       " 'awards',\n",
+       " 'heartily',\n",
+       " 'subsidizing',\n",
+       " 'exceedingly',\n",
+       " 'triumphal',\n",
+       " 'friendliness',\n",
+       " 'gracefully',\n",
+       " 'fervidly',\n",
+       " 'geeky',\n",
+       " 'lovably',\n",
+       " 'merit',\n",
+       " 'profound',\n",
+       " 'poise',\n",
+       " 'amply',\n",
+       " 'top-notch',\n",
+       " 'exquisite',\n",
+       " 'wondrous',\n",
+       " 'euphoria',\n",
+       " 'harmony',\n",
+       " 'cool',\n",
+       " 'sensible',\n",
+       " 'adventurous',\n",
+       " 'non-violence',\n",
+       " 'solace',\n",
+       " 'supporter',\n",
+       " 'triumphantly',\n",
+       " 'breakthrough',\n",
+       " 'enchant',\n",
+       " 'generous',\n",
+       " 'low-cost',\n",
+       " 'exceeding',\n",
+       " 'grateful',\n",
+       " 'safe',\n",
+       " 'angelic',\n",
+       " 'modesty',\n",
+       " 'vouchsafe',\n",
+       " 'flexibility',\n",
+       " 'cherish',\n",
+       " 'lover',\n",
+       " 'enterprising',\n",
+       " 'invincibility',\n",
+       " 'accommodative',\n",
+       " 'freedoms',\n",
+       " 'extraordinary',\n",
+       " 'lighter',\n",
+       " 'nourish',\n",
+       " 'outshone',\n",
+       " 'excitedness',\n",
+       " 'masterful',\n",
+       " 'breathtaking',\n",
+       " 'unquestionable',\n",
+       " 'swankiest',\n",
+       " 'user-replaceable',\n",
+       " 'enlighten',\n",
+       " 'stronger',\n",
+       " 'illuminating',\n",
+       " 'hopeful',\n",
+       " 'darling',\n",
+       " 'fertile',\n",
+       " 'gainful',\n",
+       " 'levity',\n",
+       " 'saint',\n",
+       " 'unfazed',\n",
+       " 'fair',\n",
+       " 'spellbound',\n",
+       " 'perfect',\n",
+       " 'peach',\n",
+       " 'supurb',\n",
+       " 'comforting',\n",
+       " 'gains',\n",
+       " 'fervently',\n",
+       " 'retractable',\n",
+       " 'overtake',\n",
+       " 'goodly',\n",
+       " 'glisten',\n",
+       " 'venerate',\n",
+       " 'well-balanced',\n",
+       " 'prefered',\n",
+       " 'luminous',\n",
+       " 'morality',\n",
+       " 'humor',\n",
+       " 'unwavering',\n",
+       " 'sprightly',\n",
+       " 'enthusiast',\n",
+       " 'sweeping',\n",
+       " 'suffice',\n",
+       " 'gusto',\n",
+       " 'harmoniously',\n",
+       " 'relish',\n",
+       " 'accomplished',\n",
+       " 'agreeable',\n",
+       " 'dignified',\n",
+       " 'pluses',\n",
+       " 'fortune',\n",
+       " 'divinely',\n",
+       " 'kudos',\n",
+       " 'breathlessness',\n",
+       " 'slammin',\n",
+       " 'invulnerable',\n",
+       " 'glimmer',\n",
+       " 'feasible',\n",
+       " 'high-quality',\n",
+       " 'reputation',\n",
+       " 'happy',\n",
+       " 'vibrant',\n",
+       " 'reassure',\n",
+       " 'impassioned',\n",
+       " 'entrancing',\n",
+       " 'succeed',\n",
+       " 'sufficient',\n",
+       " 'agile',\n",
+       " 'joyfully',\n",
+       " 'skill',\n",
+       " 'well-established',\n",
+       " 'extraordinarily',\n",
+       " 'prudence',\n",
+       " 'overtaking',\n",
+       " 'brilliance',\n",
+       " 'endearing',\n",
+       " 'convient',\n",
+       " 'relief',\n",
+       " 'commodious',\n",
+       " 'reasonable',\n",
+       " 'appropriate',\n",
+       " 'simplified',\n",
+       " 'stimulates',\n",
+       " 'glorious',\n",
+       " 'civilize',\n",
+       " 'empowerment',\n",
+       " 'glowingly',\n",
+       " 'greatest',\n",
+       " 'romanticize',\n",
+       " 'holy',\n",
+       " 'patience',\n",
+       " 'quieter',\n",
+       " 'swankier',\n",
+       " 'dumbfounded',\n",
+       " 'success',\n",
+       " 'nicer',\n",
+       " 'marveled',\n",
+       " 'conciliate',\n",
+       " 'cleverly',\n",
+       " 'extol',\n",
+       " ...}"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pos_words"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e8ab8a75",
+   "metadata": {},
+   "source": [
+    "# Calculating the Sentiment Score\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "fb40e3e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def function2(t):\n",
+    "    s=nltk.word_tokenize(t)\n",
+    "    temp = []\n",
+    "    for i in s:\n",
+    "        if i in pos_words:\n",
+    "            temp.append(1)\n",
+    "        elif i in neg_words:\n",
+    "            temp.append(-1)\n",
+    "        else:\n",
+    "            temp.append(0)\n",
+    "    if len(temp) == 0:\n",
+    "        s = 0\n",
+    "    else:\n",
+    "        s = (sum(temp)/len(temp))\n",
+    "    return s"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "ec2882ee",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.3333333333333333"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "function2('good bad sad excellent nice awesome')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "ffac588a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_reviews_dataset['Sentiment_Score'] = my_reviews_dataset['Cleansed_Message'].apply(function2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "325728b3",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Cleansed_Message</th>\n",
+       "      <th>Sentiment_Score</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great CD</td>\n",
+       "      <td>great cd</td>\n",
+       "      <td>0.500000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>One of the best game music soundtracks - for a...</td>\n",
+       "      <td>one best game music soundtrack - game n't real...</td>\n",
+       "      <td>0.100000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Batteries died within a year ...</td>\n",
+       "      <td>batteri die within year ...</td>\n",
+       "      <td>-0.200000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>works fine, but Maha Energy is better</td>\n",
+       "      <td>work fine , maha energi better</td>\n",
+       "      <td>0.500000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great for the non-audiophile</td>\n",
+       "      <td>great non-audiophil</td>\n",
+       "      <td>0.500000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9995</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Really Enjoyed it!</td>\n",
+       "      <td>realli enjoy !</td>\n",
+       "      <td>0.333333</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9996</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Disappointing PC interface/software</td>\n",
+       "      <td>disappoint pc interface/softwar</td>\n",
+       "      <td>-0.333333</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9997</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Love it Love it Love it</td>\n",
+       "      <td>love love love</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9998</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Faulty leg causing distress for my baby</td>\n",
+       "      <td>faulti leg caus distress babi</td>\n",
+       "      <td>-0.200000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9999</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Fantastic Entertainer</td>\n",
+       "      <td>fantast entertain</td>\n",
+       "      <td>0.500000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>10000 rows × 4 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Rating                                            Reviews  \\\n",
+       "0          2                                           Great CD   \n",
+       "1          2  One of the best game music soundtracks - for a...   \n",
+       "2          1                   Batteries died within a year ...   \n",
+       "3          2              works fine, but Maha Energy is better   \n",
+       "4          2                       Great for the non-audiophile   \n",
+       "...      ...                                                ...   \n",
+       "9995       2                                 Really Enjoyed it!   \n",
+       "9996       1                Disappointing PC interface/software   \n",
+       "9997       2                            Love it Love it Love it   \n",
+       "9998       1            Faulty leg causing distress for my baby   \n",
+       "9999       2                              Fantastic Entertainer   \n",
+       "\n",
+       "                                       Cleansed_Message  Sentiment_Score  \n",
+       "0                                              great cd         0.500000  \n",
+       "1     one best game music soundtrack - game n't real...         0.100000  \n",
+       "2                           batteri die within year ...        -0.200000  \n",
+       "3                        work fine , maha energi better         0.500000  \n",
+       "4                                   great non-audiophil         0.500000  \n",
+       "...                                                 ...              ...  \n",
+       "9995                                     realli enjoy !         0.333333  \n",
+       "9996                    disappoint pc interface/softwar        -0.333333  \n",
+       "9997                                     love love love         1.000000  \n",
+       "9998                      faulti leg caus distress babi        -0.200000  \n",
+       "9999                                  fantast entertain         0.500000  \n",
+       "\n",
+       "[10000 rows x 4 columns]"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea147f3c",
+   "metadata": {},
+   "source": [
+    "# Categorizing the Sentiment Scores\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "6cd7c912",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def function3(w):\n",
+    "    temp = ''\n",
+    "    if w > 0:\n",
+    "        temp = 'Positive'\n",
+    "    elif w < 0:\n",
+    "        temp = 'Negative'\n",
+    "    else:\n",
+    "        temp = 'Positive'\n",
+    "    return temp"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "d501dec8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_reviews_dataset['Sentiment'] = my_reviews_dataset['Sentiment_Score'].apply(function3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "5cc76c02",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Cleansed_Message</th>\n",
+       "      <th>Sentiment_Score</th>\n",
+       "      <th>Sentiment</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great CD</td>\n",
+       "      <td>great cd</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>One of the best game music soundtracks - for a...</td>\n",
+       "      <td>one best game music soundtrack - game n't real...</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Batteries died within a year ...</td>\n",
+       "      <td>batteri die within year ...</td>\n",
+       "      <td>-0.200000</td>\n",
+       "      <td>Negative</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>works fine, but Maha Energy is better</td>\n",
+       "      <td>work fine , maha energi better</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great for the non-audiophile</td>\n",
+       "      <td>great non-audiophil</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9995</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Really Enjoyed it!</td>\n",
+       "      <td>realli enjoy !</td>\n",
+       "      <td>0.333333</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9996</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Disappointing PC interface/software</td>\n",
+       "      <td>disappoint pc interface/softwar</td>\n",
+       "      <td>-0.333333</td>\n",
+       "      <td>Negative</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9997</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Love it Love it Love it</td>\n",
+       "      <td>love love love</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9998</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Faulty leg causing distress for my baby</td>\n",
+       "      <td>faulti leg caus distress babi</td>\n",
+       "      <td>-0.200000</td>\n",
+       "      <td>Negative</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9999</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Fantastic Entertainer</td>\n",
+       "      <td>fantast entertain</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>10000 rows × 5 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Rating                                            Reviews  \\\n",
+       "0          2                                           Great CD   \n",
+       "1          2  One of the best game music soundtracks - for a...   \n",
+       "2          1                   Batteries died within a year ...   \n",
+       "3          2              works fine, but Maha Energy is better   \n",
+       "4          2                       Great for the non-audiophile   \n",
+       "...      ...                                                ...   \n",
+       "9995       2                                 Really Enjoyed it!   \n",
+       "9996       1                Disappointing PC interface/software   \n",
+       "9997       2                            Love it Love it Love it   \n",
+       "9998       1            Faulty leg causing distress for my baby   \n",
+       "9999       2                              Fantastic Entertainer   \n",
+       "\n",
+       "                                       Cleansed_Message  Sentiment_Score  \\\n",
+       "0                                              great cd         0.500000   \n",
+       "1     one best game music soundtrack - game n't real...         0.100000   \n",
+       "2                           batteri die within year ...        -0.200000   \n",
+       "3                        work fine , maha energi better         0.500000   \n",
+       "4                                   great non-audiophil         0.500000   \n",
+       "...                                                 ...              ...   \n",
+       "9995                                     realli enjoy !         0.333333   \n",
+       "9996                    disappoint pc interface/softwar        -0.333333   \n",
+       "9997                                     love love love         1.000000   \n",
+       "9998                      faulti leg caus distress babi        -0.200000   \n",
+       "9999                                  fantast entertain         0.500000   \n",
+       "\n",
+       "     Sentiment  \n",
+       "0     Positive  \n",
+       "1     Positive  \n",
+       "2     Negative  \n",
+       "3     Positive  \n",
+       "4     Positive  \n",
+       "...        ...  \n",
+       "9995  Positive  \n",
+       "9996  Negative  \n",
+       "9997  Positive  \n",
+       "9998  Negative  \n",
+       "9999  Positive  \n",
+       "\n",
+       "[10000 rows x 5 columns]"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "97e43b7c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Positive    8308\n",
+       "Negative    1692\n",
+       "Name: Sentiment, dtype: int64"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset['Sentiment'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "e70cb7ef",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<AxesSubplot:>"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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6aWX9Ktf/Uq33XabfvnLX+rf//63li5dqvvvvz/W7aELYCUGANAl9evXT48//rhGjBih1NRUvfzyy7riiiu0atUqPfnkk1q3bl2sW0SM8cReGG3lypV6/vnnnddz5szRxRdfrLy8PO3bty+GnQE4W++//77z+0mpqal6//33JUlf+tKX9Ne//jWWraGLIMTAaMXFxUpMTJQkbd68WWVlZVq0aJH69OmjH/zgBzHuDsDZ6N+/v95++21J0qBBg/Tb3/5WkvTss8/q4osvjl1j6DI4nQSjJSUlac+ePerXr5/mzp2ruro6Pf7449q1a5dGjBihhoaGWLcI4AwtXrxYcXFxKioq0ksvvaQJEyaovb1dx44dU2lpqb7//e/HukXEGBf2wmgXXXSR3nvvPfXr10/r1693Vl969eqllpaWGHcH4Gz839XUkSNHas+ePdq+fbs+/elP63Of+1wMO0NXQYiB0caMGaM77rhDV199td544w1NmDBBkrRr1y5dfvnlsW0OwDnVr18/9evXL9ZtoAshxMBov/zlL/XDH/5QtbW1evrpp5Weni5Jqq6u1i233BLj7gCcjYceeuik4y6XS7169dIVV1yhr3zlK4qLizvPnaGr4JoYAECXlJmZqYaGBh05ckS9e/eWbdtqbGxUUlKSLrroItXX16t///566aWXlJGREet2EQPcnQTjNTY26sEHH9Qdd9yhKVOmqLS0VJFIJNZtAThLxcXFuuaaa/Tmm2/qvffe0/vvv6833nhDOTk5+sUvfqF33nlHPp+POxEvYKzEwGjbt2/XuHHjlJiYqC9+8YuybVvbt29XS0uL1q9fry984QuxbhHAGfr0pz+tp59+Wp///Oejxl955RXdeOONeuutt7Rp0ybdeOONqquri02TiCmuiYHRfvCDH6igoEDLli1TfPyH/zofO3ZMd9xxh4LBIA/EAgxWV1enY8eOdRg/duyYQqGQJMnv96u5ufl8t4YugtNJMNr27ds1d+5cJ8BIUnx8vObMmaPt27fHsDMAZ2vkyJGaNm2aXnnlFWfslVde0Xe/+11dd911kqQdO3Y4T/XFhYcQA6OlpqbqnXfe6TBeW1urlJSUGHQE4FxZvny50tLSNGTIELndbrndbg0dOlRpaWlavny5pA+fFfXggw/GuFPECtfEwGhFRUUqLy/XAw88oLy8PLlcLm3cuFF33323brzxRi1ZsiTWLQI4S3v27NEbb7wh27b12c9+VgMGDIh1S+giuCYGRnvggQfUo0cP3Xbbbc658549e+q73/2u7r///hh3B+Bc6N+/v1wulz796U9HnToGWImBkY4cOaK7775bzzzzjI4ePaqRI0fqe9/7nizL0hVXXKGkpKRYtwjgLB05ckQzZszQypUrJUlvvPGG+vfvr6KiIvn9fs2bNy/GHSLWuCYGRvrxj3+sFStWaMKECbrlllv05z//WQ899JCuuuoqAgzQTcyfP1//+Mc/9Je//EW9evVyxkePHq2nnnoqhp2hq2BdDkb63e9+p+XLl+vmm2+WJN1666269tpr1d7eziPIgW7imWee0VNPPaVhw4bJ5XI544MGDdK//vWvGHaGroKVGBiptrZWX/7yl53XX/ziFxUfH68DBw7EsCsA51JDQ4M8Hk+H8cOHD0eFGly4CDEwUnt7uxISEqLG4uPjT/pgLABmuuaaa/T88887rz8KLsuWLVNubm6s2kIXwukkGMm2bX3729+W2+12xj744APdeeedSk5OdsZ+97vfxaI9AOdASUmJxo8fr9dee03Hjh3TL37xC+3atUubN29WZWVlrNtDF8DdSTDSd77zndOqe+yxxz7hTgB8knbs2KEHHnhA1dXVOn78uL7whS9o7ty5Gjx4cKxbQxdAiAEAAEbidBIAoEvp0aPHx16463K5uAYOhBgAQNdSXl7+H/dt2rRJDz/8sDiJAInTSQAAA+zZs0fz58/Xs88+q1tvvVU/+clP1K9fv1i3hRjjFmsAQJd14MABTZkyRVdddZWOHTummpoarVy5kgADSYQYAEAXFIlENHfuXF1xxRXatWuX/vSnP+nZZ59VdnZ2rFtDF8I1MQCALmXRokVauHChfD6fnnzySX3ta1+LdUvoorgmBgDQpfTo0UOJiYkaPXr0KX8LjYdZgpUYAECXctttt/HbSDgtrMQAAAAjcWEvAAAwEiEGAAAYiRADAACMRIgBAABGIsQAAAAjEWIAAICRCDEAAMBI/w+w/0XZx1bY5gAAAABJRU5ErkJggg==\n",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset['Sentiment'].value_counts().plot(kind='bar')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "79799920",
+   "metadata": {},
+   "source": [
+    "# Evaluating the Model's Accuracy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "716ff641",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing text in a variable\n",
+    "mrd_x = my_reviews_dataset['Cleansed_Message']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "a29288c9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing text sentiment in a variable\n",
+    "mrd_y = my_reviews_dataset['Sentiment']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "e5db1606",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Selectig the train and test size\n",
+    "X_train, X_test, y_train, y_test = train_test_split(mrd_x, mrd_y, test_size=0.30, random_state=20)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "92e16d41",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "8094                                         workmanship\n",
+       "1008                                       materi flimsi\n",
+       "8016                           good thought , one best .\n",
+       "1964             's heat plate grow rusti within month .\n",
+       "9844    live drum , live trumpet , live bass , live funk\n",
+       "                              ...                       \n",
+       "3915                                prequel flower attic\n",
+       "9620                                               sad !\n",
+       "7068                                      funnier expect\n",
+       "7391                                             statist\n",
+       "4367                                             problem\n",
+       "Name: Cleansed_Message, Length: 7000, dtype: object"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "2a518650",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "9957          anoth fine tale mcmurtri\n",
+       "1687    best yoga video kid age & abil\n",
+       "2116                one best book time\n",
+       "231                   american treasur\n",
+       "2780             morey ignor literatur\n",
+       "                     ...              \n",
+       "2210                            im jim\n",
+       "2141             everi sinc saw one tv\n",
+       "1036             well made extrem skew\n",
+       "8987                     great qualiti\n",
+       "981            switch goal - good movi\n",
+       "Name: Cleansed_Message, Length: 3000, dtype: object"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "900b5be3",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "8094    Positive\n",
+       "1008    Positive\n",
+       "8016    Positive\n",
+       "1964    Positive\n",
+       "9844    Positive\n",
+       "          ...   \n",
+       "3915    Positive\n",
+       "9620    Negative\n",
+       "7068    Positive\n",
+       "7391    Positive\n",
+       "4367    Negative\n",
+       "Name: Sentiment, Length: 7000, dtype: object"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "9efa0323",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "9957    Positive\n",
+       "1687    Positive\n",
+       "2116    Positive\n",
+       "231     Positive\n",
+       "2780    Positive\n",
+       "          ...   \n",
+       "2210    Positive\n",
+       "2141    Positive\n",
+       "1036    Positive\n",
+       "8987    Positive\n",
+       "981     Positive\n",
+       "Name: Sentiment, Length: 3000, dtype: object"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_test"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ecc054f",
+   "metadata": {},
+   "source": [
+    "# Vectorizing X_train and X_test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "7b088eb4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Splitting on the data and initialising the vectors\n",
+    "vectorizer = CountVectorizer()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "957cd21c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-1\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>CountVectorizer()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-1\" type=\"checkbox\" checked><label for=\"sk-estimator-id-1\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">CountVectorizer</label><div class=\"sk-toggleable__content\"><pre>CountVectorizer()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "CountVectorizer()"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#fitting X_train in vectorizer\n",
+    "vectorizer.fit(X_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "c9a7cb0c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<7000x4892 sparse matrix of type '<class 'numpy.int64'>'\n",
+       "\twith 19512 stored elements in Compressed Sparse Row format>"
+      ]
+     },
+     "execution_count": 31,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#transforming X_train\n",
+    "vectorizer.transform(X_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "299aec01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing the transferred vector in a variable\n",
+    "X_train_vector = vectorizer.transform(X_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "8a73f431",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X_test_vector = vectorizer.transform(X_test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7542044b",
+   "metadata": {},
+   "source": [
+    "# Encoding the Categories\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "c0266028",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Importing Label Encoder and initialising it\n",
+    "LE = LabelEncoder()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "bd448e26",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-2 {color: black;background-color: white;}#sk-container-id-2 pre{padding: 0;}#sk-container-id-2 div.sk-toggleable {background-color: white;}#sk-container-id-2 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-2 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-2 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-2 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-2 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-2 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-2 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-2 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-2 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-2 div.sk-item {position: relative;z-index: 1;}#sk-container-id-2 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-2 div.sk-item::before, #sk-container-id-2 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-2 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-2 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-2 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-2 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-2 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-2 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-2 div.sk-label-container {text-align: center;}#sk-container-id-2 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-2 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-2\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LabelEncoder()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-2\" type=\"checkbox\" checked><label for=\"sk-estimator-id-2\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LabelEncoder</label><div class=\"sk-toggleable__content\"><pre>LabelEncoder()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "LabelEncoder()"
+      ]
+     },
+     "execution_count": 35,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Fitting y_train into the encoder\n",
+    "LE.fit(y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "89240567",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['Negative', 'Positive'], dtype=object)"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "LE.classes_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "6864c13a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1, 1, 1, ..., 1, 1, 0])"
+      ]
+     },
+     "execution_count": 37,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Transforming y_train\n",
+    "LE.transform(y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "466ca915",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing the transferred vector in a variable\n",
+    "y_train_encoded = LE.transform(y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "04aece02",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_test_encoded = LE.transform(y_test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e491040",
+   "metadata": {},
+   "source": [
+    "# Training the Model after Categorizing\n",
+    "- X_train_vector\n",
+    "- X_test_vector\n",
+    "- y_train_encoded\n",
+    "- y_test_encoded"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "672523b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Fitting the model\n",
+    "LR=LogisticRegression()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "5f19ca41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Fitting th model\n",
+    "LR_model = LR.fit(X_train_vector,y_train_encoded)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "9b81bfe4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1, 1, 1, ..., 1, 1, 1])"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Predicting the model\n",
+    "LR.predict(X_test_vector)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "2752a223",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing the prediction in a variable\n",
+    "LR_model_predicted = LR.predict(X_test_vector)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "82c595fd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1, 1, 1, ..., 1, 1, 1])"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_test_encoded"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "dc90792c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "test_text = [\"Cristiano Ronaldo is the Greatest\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "65de9b32",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<1x4892 sparse matrix of type '<class 'numpy.int64'>'\n",
+       "\twith 2 stored elements in Compressed Sparse Row format>"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Vectorizing the text\n",
+    "vectorizer.transform(test_text)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "63311439",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing the vector in a variable\n",
+    "text_vector_pos = vectorizer.transform(test_text)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "c0082214",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['Positive'], dtype=object)"
+      ]
+     },
+     "execution_count": 51,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "LE.inverse_transform([1])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "8a349e41",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['Positive'], dtype=object)"
+      ]
+     },
+     "execution_count": 52,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#Model's Prediction\n",
+    "LE.inverse_transform(LR.predict(text_vector_pos))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d86bc819",
+   "metadata": {},
+   "source": [
+    "# Model's Accuracy "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 225,
+   "id": "42f3e230",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.939"
+      ]
+     },
+     "execution_count": 225,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "accuracy_score(y_test_encoded,LR_model_predicted)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "521fa036",
+   "metadata": {},
+   "source": [
+    "# Confusion Matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 179,
+   "id": "300737f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing the fitted values in a variable\n",
+    "cm_model = confusion_matrix(y_test_encoded,LR_model_predicted)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 180,
+   "id": "53e1c049",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[ 333,  163],\n",
+       "       [  20, 2484]])"
+      ]
+     },
+     "execution_count": 180,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cm_model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 226,
+   "id": "c7d18e26",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<AxesSubplot:>"
+      ]
+     },
+     "execution_count": 226,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 640x480 with 2 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#Plotting the values in a heatmap\n",
+    "sns.heatmap(cm_model, annot=True, fmt=\".1f\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0ae7fb64",
+   "metadata": {},
+   "source": [
+    "# Clustering and Vectorizing "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 183,
+   "id": "8d80b558",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Storing Cleansed message in a variable\n",
+    "V = my_reviews_dataset['Cleansed_Message']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 184,
+   "id": "6a4cee1c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Fitting it inside a variable\n",
+    "VECT = vectorizer.fit(V)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 227,
+   "id": "15368002",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Transforming X\n",
+    "x_vector = vectorizer.transform(V)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52cadabc",
+   "metadata": {},
+   "source": [
+    "# Clustering"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 187,
+   "id": "16d91cf8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Initialising\n",
+    "km = KMeans(n_clusters=3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 189,
+   "id": "8161ca7b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Fitting the model\n",
+    "km_model = km.fit(x_vector)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 190,
+   "id": "5ae5e7f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x_km = km.predict(x_vector)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 191,
+   "id": "06f82bdc",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0, 1, 1, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,\n",
+       "       1, 1, 1, 1, 2, 1, 1, 1], dtype=int32)"
+      ]
+     },
+     "execution_count": 191,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x_km [0:30]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 192,
+   "id": "99121fd3",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "27748.64070207681"
+      ]
+     },
+     "execution_count": 192,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "km_model.inertia_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 193,
+   "id": "140b77bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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YGVlJbi5uQkjRowQTpw4IXZZZmvr1q2Cj4+PIJfLhUcffVRYvny5KHVwniYiIiIiE3BMExEREZEJGJqIiIiITMDQRERERGQChiYiIiIiEzA0EREREZmAoYmIiIjIBAxNRERERCZgaCIiIiIyAUMTETUIly5dgkQiQXp6utilGJw+fRp9+/aFQqGAr6/vPX/eHI+JiGrH0EREJomIiIBEIsHcuXON1m/evBkSiUSkqsQ1Z84c2Nra4syZM9i5c6fY5WD16tVo3ry52GUQNVoMTURkMoVCgXnz5qGoqEjsUupNeXl5nT974cIFBAYGok2bNmjRokU9ViUunU4HvV4vdhlEZoehiYhMNnjwYLi4uCAmJqbWNu+99161S1ULFy5E27ZtDe8jIiIQFhaGjz/+GM7OzmjevDnef/99VFZW4vXXX4eDgwPc3d2xcuXKavs/ffo0AgICoFAo0LlzZ+zevdto+8mTJ/HUU0+hWbNmcHZ2Rnh4OK5du2bYPnDgQERFRSE6OhqOjo548sknazwOvV6PDz74AO7u7pDL5fD19UV8fLxhu0QiQVpaGj744ANIJBK89957te5n3rx56NChA+RyOVq3bo2PPvqoxrY19RT9uyfvr7/+wqBBg6BUKmFnZwc/Pz/8+eef2L17N/7zn/9ArVZDIpEY1VReXo433ngDrVq1gq2tLfr06WN03m5976+//gpvb2/I5XJcvnwZu3fvRu/evWFra4vmzZujX79+uHz5co21EzUFDE1EZDKpVIqPP/4Yixcvxt9//31f+9q1axeuXLmCPXv24LPPPsN7772H4cOHw97eHgcOHMDEiRMxceJEZGVlGX3u9ddfx8yZM3HkyBEEBAQgNDQUBQUFAICcnBwMGDAAvr6++PPPPxEfH4+8vDy88MILRvtYs2YNLC0tsW/fPixbtqzG+r744gssWLAAn376KY4ePYrg4GCEhobi3Llzhu/q3LkzZs6ciZycHMyaNavG/cyePRvz5s3Du+++i5MnT2LdunVwdnau83kbPXo03N3dcejQIaSlpeGtt96ClZUVAgICsHDhQtjZ2SEnJ8eopv/85z/Yt28fYmNjcfToUTz//PMYMmSI4VgA4ObNm4iJicG3336LEydOwMHBAWFhYRgwYACOHj2KlJQUvPrqq032UiwRAEAgIjLB2LFjhaeffloQBEHo27ev8MorrwiCIAibNm0Sbv+rZM6cOUK3bt2MPvv5558Lbdq0MdpXmzZtBJ1OZ1jn5eUlPPbYY4b3lZWVgq2trbB+/XpBEAQhIyNDACDMnTvX0KaiokJwd3cX5s2bJwiCILz77rtCUFCQ0XdnZWUJAIQzZ84IgiAIAwYMEHx9fe96vG5ubsJHH31ktK5Xr17C5MmTDe+7desmzJkzp9Z9aDQaQS6XC998802N228d05EjRwRBEIRVq1YJKpXKqM2/z69SqRRWr15d4/5q+vz58+cFiUQiZGdnG61/4oknhNmzZxs+B0BIT083bC8oKBAACLt37671+IiaGvY0EdE9mzdvHtasWYOTJ0/WeR+dO3eGhcX//gpydnZGly5dDO+lUilatGiB/Px8o8/5+/sbXltaWqJnz544deoUACAtLQ2JiYlo1qyZYXn00UcBVI0/uqVnz553rE2j0eDKlSvo16+f0fp+/foZvssUp06dglarxRNPPGHyZ+4mOjoa48ePx+DBgzF37lyj46rJ4cOHIQgCOnbsaHRekpKSjD4rk8nQtWtXw3sHBwdEREQgODgYISEh+OKLL5CTk1Nvx0HUEDE0EdE969+/P4KDg/H2229X22ZhYQFBEIzWVVRUVGtnZWVl9F4ikdS4zpQBybcuGen1eoSEhCA9Pd1oOXfuHPr3729ob2tre9d93r7fWwRBuKfLU9bW1ia3BUw7d++99x5OnDiBYcOGYdeuXfD29samTZtq3ader4dUKkVaWprROTl16hS++OILo1r/fWyrVq1CSkoKAgIC8OOPP6Jjx45ITU29p2MiakwYmoioTubOnYutW7di//79RutbtmyJ3Nxcox//+pyH6PYf7crKSqSlpRl6k3r06IETJ06gbdu26NChg9FialACADs7O7i5uSE5Odlo/f79+9GpUyeT9/PII4/A2tra5OkIWrZsieLiYpSUlBjW1XTuOnbsiBkzZiAhIQEjRozAqlWrAFT1Ful0OqO23bt3h06nQ35+frVz4uLicteaunfvjtmzZ2P//v3w8fHBunXrTDoWosaIoYmI6qRLly4YPXo0Fi9ebLR+4MCBuHr1Kj755BNcuHABX331FbZv315v3/vVV19h06ZNOH36NCIjI1FUVIRXXnkFABAZGYnCwkK89NJLOHjwIC5evIiEhAS88sor1cLE3bz++uuYN28efvzxR5w5cwZvvfUW0tPTMW3aNJP3oVAo8Oabb+KNN97Ad999hwsXLiA1NRUrVqyosX2fPn1gY2ODt99+G+fPn8e6deuwevVqw/bS0lJERUVh9+7duHz5Mvbt24dDhw4Zglzbtm1x48YN7Ny5E9euXcPNmzfRsWNHjB49GmPGjMHGjRuRkZGBQ4cOYd68edi2bVuttWdkZGD27NlISUnB5cuXkZCQgLNnz95TaCRqbBiaiKjOPvzww2qXkzp16oQlS5bgq6++Qrdu3XDw4MFa7yyri7lz52LevHno1q0b9u7diy1btsDR0REA4Obmhn379kGn0yE4OBg+Pj6YNm0aVCqV0fgpU0ydOhUzZ87EzJkz0aVLF8THxyMuLg6PPPLIPe3n3XffxcyZM/H//t//Q6dOnTBy5Mhq47RucXBwwNq1a7Ft2zZ06dIF69evN5rKQCqVoqCgAGPGjEHHjh3xwgsvYOjQoXj//fcBAAEBAZg4cSJGjhyJli1b4pNPPgFQdZltzJgxmDlzJry8vBAaGooDBw7Aw8Oj1rptbGxw+vRpPPvss+jYsSNeffVVREVF4bXXXrun4ydqTCTCv//GIyIiIqJq2NNEREREZAKGJiIiIiITMDQRERERmYChiYiIiMgEDE1EREREJmBoIiIiIjIBQxMRERGRCRiaiIiIiEzA0ERERERkAoYmIiIiIhMwNBERERGZ4P8DpNOI2u+449cAAAAASUVORK5CYII=\n",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "temp = []\n",
+    "for i in range(7):\n",
+    "    km = KMeans(n_clusters = i+1)\n",
+    "    km_model = km.fit(x_vector)\n",
+    "    output = km_model.inertia_\n",
+    "    temp.append(output)\n",
+    "    \n",
+    "plt.plot(range(7), temp, marker='o')\n",
+    "plt.xlabel('Number of clusters')\n",
+    "plt.ylabel('Distortion')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 194,
+   "id": "31244a89",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_reviews_dataset['Clusters'] = x_km"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 195,
+   "id": "0250d866",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Rating</th>\n",
+       "      <th>Reviews</th>\n",
+       "      <th>Cleansed_Message</th>\n",
+       "      <th>Sentiment_Score</th>\n",
+       "      <th>Sentiment</th>\n",
+       "      <th>Clusters</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great CD</td>\n",
+       "      <td>great cd</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>One of the best game music soundtracks - for a...</td>\n",
+       "      <td>one best game music soundtrack - game n't real...</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Batteries died within a year ...</td>\n",
+       "      <td>batteri die within year ...</td>\n",
+       "      <td>-0.200000</td>\n",
+       "      <td>Negative</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>works fine, but Maha Energy is better</td>\n",
+       "      <td>work fine , maha energi better</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Great for the non-audiophile</td>\n",
+       "      <td>great non-audiophil</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9995</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Really Enjoyed it!</td>\n",
+       "      <td>realli enjoy !</td>\n",
+       "      <td>0.333333</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9996</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Disappointing PC interface/software</td>\n",
+       "      <td>disappoint pc interface/softwar</td>\n",
+       "      <td>-0.333333</td>\n",
+       "      <td>Negative</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9997</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Love it Love it Love it</td>\n",
+       "      <td>love love love</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9998</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Faulty leg causing distress for my baby</td>\n",
+       "      <td>faulti leg caus distress babi</td>\n",
+       "      <td>-0.200000</td>\n",
+       "      <td>Negative</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9999</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Fantastic Entertainer</td>\n",
+       "      <td>fantast entertain</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>Positive</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>10000 rows × 6 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      Rating                                            Reviews  \\\n",
+       "0          2                                           Great CD   \n",
+       "1          2  One of the best game music soundtracks - for a...   \n",
+       "2          1                   Batteries died within a year ...   \n",
+       "3          2              works fine, but Maha Energy is better   \n",
+       "4          2                       Great for the non-audiophile   \n",
+       "...      ...                                                ...   \n",
+       "9995       2                                 Really Enjoyed it!   \n",
+       "9996       1                Disappointing PC interface/software   \n",
+       "9997       2                            Love it Love it Love it   \n",
+       "9998       1            Faulty leg causing distress for my baby   \n",
+       "9999       2                              Fantastic Entertainer   \n",
+       "\n",
+       "                                       Cleansed_Message  Sentiment_Score  \\\n",
+       "0                                              great cd         0.500000   \n",
+       "1     one best game music soundtrack - game n't real...         0.100000   \n",
+       "2                           batteri die within year ...        -0.200000   \n",
+       "3                        work fine , maha energi better         0.500000   \n",
+       "4                                   great non-audiophil         0.500000   \n",
+       "...                                                 ...              ...   \n",
+       "9995                                     realli enjoy !         0.333333   \n",
+       "9996                    disappoint pc interface/softwar        -0.333333   \n",
+       "9997                                     love love love         1.000000   \n",
+       "9998                      faulti leg caus distress babi        -0.200000   \n",
+       "9999                                  fantast entertain         0.500000   \n",
+       "\n",
+       "     Sentiment  Clusters  \n",
+       "0     Positive         0  \n",
+       "1     Positive         1  \n",
+       "2     Negative         1  \n",
+       "3     Positive         2  \n",
+       "4     Positive         0  \n",
+       "...        ...       ...  \n",
+       "9995  Positive         1  \n",
+       "9996  Negative         1  \n",
+       "9997  Positive         1  \n",
+       "9998  Negative         1  \n",
+       "9999  Positive         1  \n",
+       "\n",
+       "[10000 rows x 6 columns]"
+      ]
+     },
+     "execution_count": 195,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 196,
+   "id": "d633d928",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1    9136\n",
+       "0     667\n",
+       "2     197\n",
+       "Name: Clusters, dtype: int64"
+      ]
+     },
+     "execution_count": 196,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset['Clusters'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 197,
+   "id": "3d57b915",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mrd_cluster_0 = my_reviews_dataset[my_reviews_dataset['Clusters'] == 0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 198,
+   "id": "39dab1ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mrd_cluster_1 = my_reviews_dataset[my_reviews_dataset['Clusters'] == 1]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 229,
+   "id": "2c9924dd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mrd_cluster_2 = my_reviews_dataset[my_reviews_dataset['Clusters'] == 2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "172e9d07",
+   "metadata": {},
+   "source": [
+    "# converting the clusters into strings in order to create wordclouds"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 203,
+   "id": "b8e53bf1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Cluster0 = str(mrd_cluster_0.values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 204,
+   "id": "65b75d06",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Cluster1 = str(mrd_cluster_1.values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 205,
+   "id": "a9f6f0a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Cluster2 = str(mrd_cluster_2.values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 230,
+   "id": "a2efa93e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "\"[[2 'Great CD' 'great cd' 0.5 'Positive' 0]\\n [2 'Great for the non-audiophile' 'great non-audiophil' 0.5 'Positive' 0]\\n [2 'Great book for travelling Europe' 'great book travel europ' 0.25\\n  'Positive' 0]\\n ...\\n [2 'Great ideas!!' 'great idea ! !' 0.25 'Positive' 0]\\n [1 'Not great' 'great' 1.0 'Positive' 0]\\n [2 'Gift for my Great Nephew in Texas' 'gift great nephew texa' 0.25\\n  'Positive' 0]]\""
+      ]
+     },
+     "execution_count": 230,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Cluster0"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43a7f3c8",
+   "metadata": {},
+   "source": [
+    "# WordCloud for Cleansed Message"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 208,
+   "id": "bcdde781",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['great cd',\n",
+       "       \"one best game music soundtrack - game n't realli play\",\n",
+       "       'batteri die within year ...', ..., 'love love love',\n",
+       "       'faulti leg caus distress babi', 'fantast entertain'], dtype=object)"
+      ]
+     },
+     "execution_count": 208,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset['Cleansed_Message'].values"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 210,
+   "id": "70cc1fec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "string = str(my_reviews_dataset['Cleansed_Message'].values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 211,
+   "id": "ba984632",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(10000, 6)"
+      ]
+     },
+     "execution_count": 211,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_reviews_dataset.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 231,
+   "id": "ae79b128",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "173"
+      ]
+     },
+     "execution_count": 231,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b472f9e7",
+   "metadata": {},
+   "source": [
+    "## Showing the WordCloud codes as markdown due to error in installing WordCloud library in the terminal."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e91cc0f0",
+   "metadata": {},
+   "source": [
+    "stopwords = set(STOPWORDS)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "91d4cbb3",
+   "metadata": {},
+   "source": [
+    "wordcloud = WordCloud(stopwords = stopwords,background_color=\"black\").generate(string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "45003476",
+   "metadata": {},
+   "source": [
+    "plt.figure(figsize=(15,10))\n",
+    "plt.imshow(wordcloud, interpolation='bilinear')\n",
+    "plt.axis(\"off\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce7a4da5",
+   "metadata": {},
+   "source": [
+    "# Creating WordCloud for all the Clusters\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6eaffdb3",
+   "metadata": {},
+   "source": [
+    "# Cluster 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d7e6970",
+   "metadata": {},
+   "source": [
+    "wordcloud = WordCloud(stopwords = stopwords,background_color=\"black\").generate(Cluster0)\n",
+    "plt.figure(figsize=(15,10))\n",
+    "plt.imshow(wordcloud, interpolation='bilinear')\n",
+    "plt.axis(\"off\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e89329c",
+   "metadata": {},
+   "source": [
+    "# Cluster 2\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "90ebddfe",
+   "metadata": {},
+   "source": [
+    "wordcloud = WordCloud(stopwords = stopwords,background_color=\"black\").generate(Cluster1)\n",
+    "plt.figure(figsize=(15,10))\n",
+    "plt.imshow(wordcloud, interpolation='bilinear')\n",
+    "plt.axis(\"off\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "084f56c9",
+   "metadata": {},
+   "source": [
+    "# Cluster 3 \n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9c3e9ab6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "wordcloud = WordCloud(stopwords = stopwords,background_color=\"black\").generate(Cluster2)\n",
+    "plt.figure(figsize=(15,10))\n",
+    "plt.imshow(wordcloud, interpolation='bilinear')\n",
+    "plt.axis(\"off\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "905396ea",
+   "metadata": {},
+   "source": [
+    "# Displayed the WordClouds on readme file."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.16"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
